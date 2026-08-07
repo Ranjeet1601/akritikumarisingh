@@ -56,6 +56,38 @@
   }
   .resume-btn:hover{background: rgba(227,168,59,0.08);}
 
+  .menu-toggle{
+    display:none; flex-direction:column; justify-content:center; gap:5px;
+    width:38px; height:38px; border:1px solid var(--panel-border); border-radius:8px;
+    background:rgba(255,255,255,0.02); flex-shrink:0;
+  }
+  .menu-toggle span{
+    width:18px; height:2px; background:#fff; margin:0 auto; border-radius:2px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  .menu-toggle.open span:nth-child(1){ transform:translateY(7px) rotate(45deg); }
+  .menu-toggle.open span:nth-child(2){ opacity:0; }
+  .menu-toggle.open span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
+
+  .mobile-links{
+    display:none; flex-direction:column; gap:2px;
+    position:fixed; top:0; right:-280px; width:260px; height:100vh; z-index:100;
+    background:var(--bg-2); border-left:1px solid var(--panel-border);
+    padding:90px 24px 24px; transition:right 0.35s cubic-bezier(.22,.68,.4,1);
+    box-shadow:-10px 0 40px rgba(0,0,0,0.4);
+  }
+  .mobile-links.open{ right:0; }
+  .mobile-links a{
+    color:var(--text-dim); font-size:16px; font-weight:600; padding:14px 8px;
+    border-bottom:1px solid var(--panel-border);
+  }
+  .mobile-links a.active{ color:var(--gold); }
+  .mobile-overlay{
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:99;
+    opacity:0; pointer-events:none; transition:opacity 0.3s ease;
+  }
+  .mobile-overlay.open{ opacity:1; pointer-events:auto; }
+
   /* HERO */
   .hero{
     position:relative;
@@ -522,19 +554,53 @@
     .section-grid{grid-template-columns:1fr;}
     .rc-grid, .edu-grid, .whatido-grid{grid-template-columns:1fr;}
     nav.links{display:none;}
+    .menu-toggle{display:flex;}
+    .mobile-links, .mobile-overlay{display:flex;}
     .ticker-track .ticker-item{padding:12px 18px;}
     .reports-grid, .testi-grid{grid-template-columns:1fr;}
     .awards-grid{grid-template-columns:1fr 1fr;}
     .contact-grid{grid-template-columns:1fr;}
-    .form-row{grid-template-columns:1fr;}
+    .hero-photo-wrap{height:340px; margin-top:10px;}
+    .hero h1{font-size:44px;}
   }
-  .bull-image {
-    width: 100%;
-    max-width: 108px;
-    height: auto;
-    display: block;
-    margin: 0px auto 0;
-    object-fit: contain;
+
+  @media (max-width: 768px){
+    header.nav{padding:16px 20px;}
+    .resume-btn-text{display:none;}
+    .resume-btn{padding:10px 12px;}
+    .hero{padding:44px 20px 40px;}
+    .hero h1{font-size:36px;}
+    .hero .role{font-size:20px; margin-bottom:14px;}
+    .hero p.desc{font-size:14.5px; margin-bottom:22px;}
+    .hero-ctas{flex-wrap:wrap; gap:12px; margin-bottom:28px;}
+    .btn-primary, .btn-outline{padding:12px 20px; font-size:14px;}
+    .stat-bar{flex-wrap:wrap; gap:18px 10px; padding:20px 14px;}
+    .stat{flex:1 1 40%; min-width:110px;}
+    .float-tag{font-size:11px; padding:5px 10px;}
+    .float-tag .tk{font-size:11px;}
+    section{padding-left:20px !important; padding-right:20px !important;}
+    .block-head h2{font-size:26px;}
+    .card, .report-card, .testi-card, .award-card{padding:22px;}
+    .awards-grid{grid-template-columns:1fr;}
+    .contact-cta{padding:24px;}
+    .contact-cta h3{font-size:19px;}
+    footer{padding:20px;}
+    .foot-items{gap:16px; justify-content:center;}
+    footer{flex-direction:column; text-align:center;}
+  }
+
+  @media (max-width: 480px){
+    .logo{font-size:18px;}
+    .hero h1{font-size:30px;}
+    .hero .role{font-size:17px;}
+    .hero-photo-wrap{height:280px;}
+    .float-tag:nth-child(3), .float-tag:nth-child(5){display:none;}
+    .hero-ctas{flex-direction:column; align-items:stretch;}
+    .hero-ctas a{justify-content:center;}
+    .stat .num{font-size:20px;}
+    .stat .lbl{font-size:10.5px;}
+    .cta-tags span{font-size:11px;}
+    .mobile-links{width:78vw; right:-78vw;}
   }
 </style>
 </head>
@@ -558,9 +624,24 @@
   </nav>
   <a href="assets/Akriti_Singh_Resume.pdf" download="assets/Akriti_Singh_Resume.pdf" class="resume-btn">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 3V16M12 16L7 11M12 16L17 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 20H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-    Download Resume
+    <span class="resume-btn-text">Download Resume</span>
   </a>
+  <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
 </header>
+
+<nav class="mobile-links" id="mobileLinks">
+  <a href="#home" class="active">Home</a>
+  <a href="#about">About</a>
+  <a href="#skills">Skills</a>
+  <a href="#experience">Experience</a>
+  <a href="#research">Research</a>
+  <a href="#education">Education</a>
+  <a href="#contact-section">Contact</a>
+</nav>
+<div class="mobile-overlay" id="mobileOverlay"></div>
+
 
 <section class="hero" id="home">
   <div class="chart-bg"></div>
@@ -587,25 +668,7 @@
     <circle class="hero-line-dot" r="5" cx="0" cy="0"/>
   </svg>
 
-  <div class="float-tag" style="top:55px; left:26%; animation-delay:0s;">
-    <span class="tk">NIFTY 50</span>
-    <span class="chg up"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M12 5L5 12M12 5L19 12" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>0.62%</span>
-  </div>
-  <div class="float-tag" style="top:78px; left:38%; animation-delay:0.9s;">
-    <span class="tk">CSL.AX</span>
-    <span class="chg up"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M12 5L5 12M12 5L19 12" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>1.18%</span>
-  </div>
-  <div class="float-tag" style="top:112px; left:64%; animation-delay:1.6s;">
-    <span class="tk">ASIANPAINT</span>
-    <span class="chg down"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M12 19L5 12M12 19L19 12" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>0.45%</span>
-  </div>
-  <div class="float-tag" style="top:172px; left:20%; animation-delay:2.3s;">
-    
-  </div>
-  <div class="float-tag" style="top:192px; right:20%; animation-delay:3.1s;">
-    <span class="tk">GOLD</span>
-    <span class="chg down"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M12 19L5 12M12 19L19 12" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>0.25%</span>
-  </div>
+  
 
   <div class="hero-grid">
     <div>
@@ -670,29 +733,13 @@
 
 <section class="section-grid reveal-stagger" id="about">
   <div class="card">
-  <h3>
-    <span class="ico">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"></circle>
-        <path d="M4 21C4 16.5 7.5 14 12 14C16.5 14 20 16.5 20 21" stroke="currentColor" stroke-width="2"></path>
-      </svg>
-    </span>
-    About Me
-  </h3>
-
-  <div class="about-body">
-    <p>
-      Equity research professional with a strong foundation in fundamental
-      analysis, financial modeling, and valuation. Skilled in DCF,
-      Comparable Company Analysis, earnings analysis, and creating actionable
-      investment insights.
-    </p>
-
-    <img src="assets/bull.webp" alt="Bull Market" class="bull-image">
+    <h3><span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 21C4 16.5 7.5 14 12 14C16.5 14 20 16.5 20 21" stroke="currentColor" stroke-width="2"/></svg></span>About Me</h3>
+    <div class="about-body">
+      <p>Equity research professional with a strong foundation in fundamental analysis, financial modeling, and valuation. Skilled in DCF, Comparable Company Analysis, earnings analysis, and creating actionable investment insights.</p>
+      <div class="bull-placeholder">Bull / market image</div>
+    </div>
+    <div class="signature">Akriti Singh</div>
   </div>
-
-  <div class="signature">Akriti Singh</div>
-</div>
 
   <div class="card" id="skills">
     <h3><span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 19H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 19V9M12 19V5M18 19V13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>Core Expertise</h3>
@@ -899,7 +946,7 @@
       </div>
       <div class="ci-row">
         <div class="ci-ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="2" y="9" width="4" height="12" stroke="currentColor" stroke-width="2"/><circle cx="4" cy="4" r="2" stroke="currentColor" stroke-width="2"/><path d="M10 9V21M10 13C10 10 13 9 15 9C18 9 20 11 20 14V21" stroke="currentColor" stroke-width="2"/></svg></div>
-        <div><div class="ci-label">LinkedIn</div><div class="ci-val">https://www.linkedin.com/in/akriti-kumari-singh-919672254?utm_source=share_via&utm_content=profile&utm_medium=member_android</div></div>
+        <div><div class="ci-label">LinkedIn</div><div class="ci-val">AKRITI</div></div>
       </div>
     </div>
     <div class="contact-cta">
@@ -920,7 +967,7 @@
           <span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M22 16.9V19.9C22 20.5 21.5 21 20.9 21C10.4 21 3 13.6 3 3.1C3 2.5 3.5 2 4.1 2H7.1C7.7 2 8.1 2.4 8.2 2.9L8.9 6.7C9 7.2 8.8 7.7 8.4 8L6.7 9.3C7.9 12 10 14.1 12.7 15.3L14 13.6C14.3 13.2 14.8 13 15.3 13.1L19.1 13.8C19.6 13.9 20 14.4 20 14.9V16.9Z" stroke="currentColor" stroke-width="2"/></svg></span>
           Call Me
         </a>
-        <a href="https://www.linkedin.com/in/akriti-kumari-singh-919672254?utm_source=share_via&utm_content=profile&utm_medium=member_android" class="cta-btn">
+        <a href="#" class="cta-btn">
           <span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="2" y="9" width="4" height="12" stroke="currentColor" stroke-width="2"/><circle cx="4" cy="4" r="2" stroke="currentColor" stroke-width="2"/><path d="M10 9V21M10 13C10 10 13 9 15 9C18 9 20 11 20 14V21" stroke="currentColor" stroke-width="2"/></svg></span>
           Connect on LinkedIn
         </a>
@@ -938,7 +985,7 @@
     <div class="foot-item"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 21C12 21 19 14.5 19 9.5C19 5.4 15.6 2 12 2C8.4 2 5 5.4 5 9.5C5 14.5 12 21 12 21Z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="9.5" r="2.5" stroke="currentColor" stroke-width="2"/></svg></span>New Delhi, India</div>
     <div class="foot-item"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M22 16.9V19.9C22 20.5 21.5 21 20.9 21C10.4 21 3 13.6 3 3.1C3 2.5 3.5 2 4.1 2H7.1C7.7 2 8.1 2.4 8.2 2.9L8.9 6.7C9 7.2 8.8 7.7 8.4 8L6.7 9.3C7.9 12 10 14.1 12.7 15.3L14 13.6C14.3 13.2 14.8 13 15.3 13.1L19.1 13.8C19.6 13.9 20 14.4 20 14.9V16.9Z" stroke="currentColor" stroke-width="2"/></svg></span>+91 8809721533</div>
     <div class="foot-item"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M2 6L12 13L22 6" stroke="currentColor" stroke-width="2"/></svg></span>akritisingh140418@gmail.com</div>
-    <div class="foot-item"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="9" width="4" height="12" stroke="currentColor" stroke-width="2"/><circle cx="4" cy="4" r="2" stroke="currentColor" stroke-width="2"/><path d="M10 9V21M10 13C10 10 13 9 15 9C18 9 20 11 20 14V21" stroke="currentColor" stroke-width="2"/></svg></span>LinkedIn: https://www.linkedin.com/in/akriti-kumari-singh-919672254</div>
+    <div class="foot-item"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="9" width="4" height="12" stroke="currentColor" stroke-width="2"/><circle cx="4" cy="4" r="2" stroke="currentColor" stroke-width="2"/><path d="M10 9V21M10 13C10 10 13 9 15 9C18 9 20 11 20 14V21" stroke="currentColor" stroke-width="2"/></svg></span>LinkedIn: AKRITI</div>
   </div>
   <a href="#home" class="to-top">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M12 5L5 12M12 5L19 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1007,19 +1054,47 @@
 
   // Active nav-link highlight while scrolling
   var sectionIds = ['home','about','experience','research','education','contact-section'];
-  var navAnchors = document.querySelectorAll('nav.links a');
+  var navAnchors = document.querySelectorAll('nav.links a, .mobile-links a');
   var sections = sectionIds.map(function(id){ return document.getElementById(id); }).filter(Boolean);
   if(sections.length && navAnchors.length){
     var navObserver = new IntersectionObserver(function(entries){
       entries.forEach(function(entry){
         if(entry.isIntersecting){
           navAnchors.forEach(function(a){ a.classList.remove('active'); });
-          var match = document.querySelector('nav.links a[href="#' + entry.target.id + '"]');
-          if(match) match.classList.add('active');
+          var match = document.querySelectorAll('nav.links a[href="#' + entry.target.id + '"], .mobile-links a[href="#' + entry.target.id + '"]');
+          match.forEach(function(m){ m.classList.add('active'); });
         }
       });
     }, { threshold: 0.5, rootMargin: '-80px 0px -60% 0px' });
     sections.forEach(function(s){ navObserver.observe(s); });
+  }
+
+  // Mobile menu toggle
+  var menuToggle = document.getElementById('menuToggle');
+  var mobileLinks = document.getElementById('mobileLinks');
+  var mobileOverlay = document.getElementById('mobileOverlay');
+  function closeMenu(){
+    menuToggle.classList.remove('open');
+    mobileLinks.classList.remove('open');
+    mobileOverlay.classList.remove('open');
+    menuToggle.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+  function openMenu(){
+    menuToggle.classList.add('open');
+    mobileLinks.classList.add('open');
+    mobileOverlay.classList.add('open');
+    menuToggle.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  }
+  if(menuToggle){
+    menuToggle.addEventListener('click', function(){
+      if(mobileLinks.classList.contains('open')){ closeMenu(); } else { openMenu(); }
+    });
+    mobileOverlay.addEventListener('click', closeMenu);
+    mobileLinks.querySelectorAll('a').forEach(function(a){
+      a.addEventListener('click', closeMenu);
+    });
   }
 })();
 </script>
